@@ -65,11 +65,10 @@ var hand = new Array(6);
 var held = new Array(6);
 var topdeck = new Array(6);
 var deck = new Array(53);
-var mokeData = false;
+var mokeData = true;
 /**
  * DealDraw()
  * Initiates and runs the game
- *
  */
 function DealDraw() {
     fillAndShuffle();
@@ -78,8 +77,7 @@ function DealDraw() {
 }
 /**
  * fillAndShuffle()
- * Initiates and runs the game
- *
+ * fills the deck and shuffles
  */
 function fillAndShuffle() {
 // fill the deck (in order, for now)
@@ -100,13 +98,13 @@ function fillAndShuffle() {
     }
 }
 /**
- * fillAndShuffle()
- * Initiates and runs the game
- *
+ * Deal()
+ * Deals the cards and register the top 5 of the deck
  */
 function Deal() {
-    if (mokeData == true)
-        mokeHand(mock_one_pair);
+    if (document.getElementById('result').value !== '' && document.getElementById('result').value !== undefined) {
+        mokeHand(document.getElementById('result').value);
+    }
     // Deal and Display cards
     for (i = 1; i < 6; i++) {
         hand[i] = deck[i];
@@ -121,40 +119,26 @@ function Deal() {
         document.images[i + 4].src = "img/" + topdeck[i].fname();
     }
 }
-
 /**
- * fillAndShuffle()
- * Initiates and runs the game
- *
+ * fname()
+ * Parses the filename for the cards images from the card object
  */
-// Make a filename for an image, given Card object
 function fname() {
-    return this.rank + this.suit + ".gif";
+    filename = this.rank + this.suit + ".gif";
+    return filename.toLowerCase();
 }
 /**
- * fillAndShuffle()
- * Initiates and runs the game
- *
+ * Card()
+ * Constructor of card objects
  */
-// Constructor for Card objects
 function Card(rank, suit) {
     this.rank = rank;
     this.suit = suit;
     this.fname = fname;
 }
 /**
- * fillAndShuffle()
- * Initiates and runs the game
- *
- */
-// Numeric sort function
-function rankSort(a, b) {
-    return a - b;
-}
-/**
- * fillAndShuffle()
- * Initiates and runs the game
- *
+ * sortPsyHand()
+ * Sorts the psy hand of ten cards
  */
 // Sort Hand
 function sortPsyHand() {
@@ -169,26 +153,24 @@ function sortPsyHand() {
     return sortedHand;
 }
 /**
- * fillAndShuffle()
- * Initiates and runs the game
- *
+ * bestHand()
+ * gets the best out of hand :D
  */
 function bestHand() {
-
-
-    //Scores
-    var straight_flush = false;
-    var flush = false;
-    var straight = false;
-    var four_of_a_kind = false;
-    var full_house = false;
-    var three_of_a_kind = false;
-    var two_pairs = false;
+    //Scores (to be added on future development )
+    var pokerHands = Array();
+    pokerHands['straight_flush'] = 0;
+    pokerHands['four_of_a_kind'] = 0;
+    pokerHands['full_house'] = 0;
+    pokerHands['flush'] = 0;
+    pokerHands['straight'] = 0;
+    pokerHands['three_of_a_kind'] = 0;
+    pokerHands['two_pairs'] = 0;
+    pokerHands['one_pair'] = 0;
+    pokerHands['highest_card'] = 0;
     var one_pair = 0;
-    var highest_card = false;
 
     //properties
-    var ranks = new Array(10);
     var countRanks = {};
     var countSuits = {};
     var countR = {};
@@ -196,18 +178,12 @@ function bestHand() {
     var indexes = {};
     var size = 0;
 
-
-    //*******************
+    //Gets the top of the deck and adds to the hand
     for (i = 0; i < 5; i++) {
         hand[i + 6] = topdeck[i + 1];
     }
+    //Sorts the full hand
     sortedHand = sortPsyHand();
-
-    for (i = 0; i < 10; i++) {
-        ranks[i] = hand[i + 1].rank;
-    }
-    ranks.sort(rankSort);
-    //****************
     //Initially check for a straight flush
     for (var i = 0; i < sortedHand.length; i++) {
 
@@ -230,7 +206,7 @@ function bestHand() {
             }
         }
     }
-    //check for the frequence of suits and ranks
+    //check for the frequencies of suits and ranks
     var countIndexes = 0;
 
     for (var prop in indexes) {
@@ -253,13 +229,12 @@ function bestHand() {
             ++ci;
         }
         if (si >= 4) {
-            straight = true;
+            pokerHands['straight'] = 1;
         }
         for (var prop in countS) {
             if (countS.hasOwnProperty(prop)) {
                 if (countS[prop] >= 5) {
-                    console.log('straight_flush');
-                    straight_flush = true;
+                    pokerHands['straight_flush'] = 1;
                 }
             }
         }
@@ -267,28 +242,67 @@ function bestHand() {
     for (var prop in countSuits) {
         if (countSuits.hasOwnProperty(prop)) {
             if (countSuits[prop] >= 5) {
-                flush = true;
+                pokerHands['flush'] = 1;
             }
         }
     }
     for (var prop in countRanks) {
         if (countRanks.hasOwnProperty(prop)) {
             if (countRanks[prop] === 4) {
-                console.log('four_of_a_kind');
-                four_of_a_kind = true;
+                pokerHands['four_of_a_kind'] = 1;
             }
             if (countRanks[prop] === 3) {
-                console.log('three_of_a_kind');
-                three_of_a_kind = true;
+                pokerHands['three_of_a_kind'] = 1;
             }
             if (countRanks[prop] === 2) {
-                console.log('one_pair');
                 ++one_pair;
+                pokerHands['one_pair'] = 1;
             }
         }
     }
+    if (pokerHands['three_of_a_kind'] == 1 && one_pair >= 1) {
+        pokerHands['full_house'] = 1;
+    }
     if (one_pair >= 2) {
-        console.log('two_pairs');
-        two_pairs = true;
+        pokerHands['two_pairs'] = 1;
+    }
+    if (one_pair == 0) {
+        pokerHands['highest_card'] = 1;
+    }
+    //Display the result
+    if (pokerHands['straight_flush'] == 1) {
+        document.getElementById('psyres').value = 'straight flush';
+        return
+    }
+    if (pokerHands['four_of_a_kind'] == 1) {
+        document.getElementById('psyres').value = 'four of a kind';
+        return
+    }
+    if (pokerHands['full_house'] == 1) {
+        document.getElementById('psyres').value = 'full house';
+        return
+    }
+    if (pokerHands['flush'] == 1) {
+        document.getElementById('psyres').value = 'flush';
+        return
+    }
+    if (pokerHands['straight'] == 1) {
+        document.getElementById('psyres').value = 'straight';
+        return
+    }
+    if (pokerHands['three_of_a_kind'] == 1) {
+        document.getElementById('psyres').value = 'three of a kind';
+        return
+    }if (pokerHands['two_pairs'] == 1) {
+        document.getElementById('psyres').value = 'two pairs';
+        return
+    }
+    if (pokerHands['one_pair'] == 1) {
+        document.getElementById('psyres').value = 'one pair';
+        return
+    }
+    if (pokerHands['highest_card'] == 1) {
+        document.getElementById('psyres').value = 'highest card';
+        return
     }
 }
